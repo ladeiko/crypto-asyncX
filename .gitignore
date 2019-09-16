@@ -2,3 +2,4 @@
 binding.node
 build
 node_modules
+/.idea/

@@ -265,17 +265,17 @@ function Probe(method, signature, algorithm) {
         if (method === 'cipher') {
           // These are a subset of disabled ciphers:
           check('E_ALGORITHM_DISABLED', [
-            'aes-128-cbc',
-            'aes-192-cbc',
-            'aes-256-cbc',
+            // 'aes-128-cbc',
+            // 'aes-192-cbc',
+            // 'aes-256-cbc',
 
             'aes-128-ccm',
             'aes-192-ccm',
             'aes-256-ccm',
 
-            'aes-128-ecb',
-            'aes-192-ecb',
-            'aes-256-ecb',
+            // 'aes-128-ecb',
+            // 'aes-192-ecb',
+            // 'aes-256-ecb',
 
             'aes-128-xts',
             'aes-256-xts',

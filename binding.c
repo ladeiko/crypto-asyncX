@@ -151,6 +151,9 @@ static int cipher_supported(const EVP_CIPHER* evp_cipher) {
   if (mode == EVP_CIPH_GCM_MODE) return 1;
   // Disable OCB (patented):
   // if (mode == EVP_CIPH_OCB_MODE) return 1;
+  // Dangerous
+  if (mode == EVP_CIPH_ECB_MODE) return 1;
+  if (mode == EVP_CIPH_CBC_MODE) return 1;
   return 0;
 }
 

@@ -1,3 +1,10 @@
+# NOTE: This is Fork!
+
+Original module is located at [https://github.com/ronomon/crypto-async](https://github.com/ronomon/crypto-async)
+
+# Main difference from original module
+* Supports dangerous ciphers modes (CBC, ECB)
+
 # @ronomon/crypto-async
 Fast, reliable cipher, hash and hmac methods executed in Node's threadpool for
 multi-core throughput.
