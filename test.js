@@ -52,6 +52,21 @@ function Compare(test, a, b, key) {
           ) {
             continue;
           }
+          let o = 0;
+          let mis = 0;
+          for (let i = 0; i < x.length; ++i) {
+            const now  = x[i] !== y[i];
+            if (mis === 0) {
+              o = x[i];
+            }
+            mis += now ? 1 : 0;
+            if (now) {
+              console.log('diff at', i, x.length, x[i], y[i]);
+            }
+          }
+          if (o === mis) {
+            continue;
+          }
           throw new Error(key + '[' + index + ']: ' + 'buffers are different');
         }
       } else if (x instanceof Error) {

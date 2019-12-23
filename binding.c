@@ -63,9 +63,9 @@
 static int arg_buf(
   napi_env env,
   napi_value value,
-  unsigned char** buffer,
-  int* length,
-  const char* error
+  unsigned char** const buffer,
+  int* const length,
+  const char* const error
 ) {
   assert(*buffer == NULL);
   assert(*length == 0);
@@ -119,9 +119,9 @@ static int arg_int(
 static int arg_str(
   napi_env env,
   napi_value value,
-  char* string,
+  char* const string,
   const size_t length,
-  const char* error
+  const char* const error
 ) {
   size_t out = 0;
   if (napi_get_value_string_utf8(env, value, string, length, &out) != napi_ok) {
@@ -131,7 +131,7 @@ static int arg_str(
   return 1;
 }
 
-static int cipher_aead(const EVP_CIPHER* evp_cipher) {
+static int cipher_aead(const EVP_CIPHER* const evp_cipher) {
   assert(evp_cipher);
   if (EVP_CIPHER_nid(evp_cipher) == NID_chacha20_poly1305) return 1;
   const int mode = EVP_CIPHER_mode(evp_cipher);
@@ -140,7 +140,7 @@ static int cipher_aead(const EVP_CIPHER* evp_cipher) {
   return 0;
 }
 
-static int cipher_supported(const EVP_CIPHER* evp_cipher) {
+static int cipher_supported(const EVP_CIPHER* const evp_cipher) {
   // CCM is slow, macs then encrypts, and has a complicated OpenSSL interface.
   // CBC has a poor track record, and leaves padding after the decrypted target.
   int nid = EVP_CIPHER_nid(evp_cipher);
@@ -158,7 +158,7 @@ static int cipher_supported(const EVP_CIPHER* evp_cipher) {
 }
 
 static int cipher_target_size(
-  const EVP_CIPHER* evp_cipher,
+  const EVP_CIPHER* const evp_cipher,
   const int encrypt,
   const int source_size
 ) {
@@ -196,7 +196,7 @@ static int cipher_target_size(
 }
 
 static int cipher_valid_aad_size(
-  const EVP_CIPHER* evp_cipher,
+  const EVP_CIPHER* const evp_cipher,
   const int aad_size
 ) {
   assert(evp_cipher);
@@ -206,7 +206,7 @@ static int cipher_valid_aad_size(
 }
 
 static int cipher_valid_iv_size(
-  const EVP_CIPHER* evp_cipher,
+  const EVP_CIPHER* const evp_cipher,
   const int iv_size
 ) {
   assert(evp_cipher);
@@ -229,7 +229,7 @@ static int cipher_valid_iv_size(
 }
 
 static int cipher_valid_key_size(
-  const EVP_CIPHER* evp_cipher,
+  const EVP_CIPHER* const evp_cipher,
   const int key_size
 ) {
   assert(evp_cipher);
@@ -239,7 +239,7 @@ static int cipher_valid_key_size(
 }
 
 static int cipher_valid_tag_size(
-  const EVP_CIPHER* evp_cipher,
+  const EVP_CIPHER* const evp_cipher,
   const int tag_size
 ) {
   assert(evp_cipher);
@@ -288,13 +288,13 @@ static const char* execute_cipher(
   const int key_size,
   const unsigned char* iv,
   const int iv_size,
-  const unsigned char* source,
+  const unsigned char* const source,
   const int source_size,
-  unsigned char* target,
-  int* target_size,
-  const unsigned char* aad,
+  unsigned char* const target,
+  int* const target_size,
+  const unsigned char* const aad,
   const int aad_size,
-  unsigned char* tag,
+  unsigned char* const tag,
   const int tag_size
 ) {
   const EVP_CIPHER* evp_cipher = EVP_get_cipherbynid(nid);
@@ -325,9 +325,11 @@ static const char* execute_cipher(
   // Disable padding to prevent an accidental padding oracle:
   // https://blog.cloudflare.com/padding-oracles-and-the-decline-of-
   // cbc-mode-ciphersuites/
-  if (!EVP_CIPHER_CTX_set_padding(ctx, 0)) {
-    EVP_CIPHER_CTX_free(ctx);
-    return "set padding failed";
+  if ((EVP_CIPHER_mode(evp_cipher) != EVP_CIPH_CBC_MODE && EVP_CIPHER_mode(evp_cipher) != EVP_CIPH_ECB_MODE)) {
+    if (!EVP_CIPHER_CTX_set_padding(ctx, 0)) {
+      EVP_CIPHER_CTX_free(ctx);
+      return "set padding failed";
+    }
   }
 
   // Set the tag length only for OCB before encryption (and decryption):
@@ -457,9 +459,9 @@ static const char* execute_cipher(
 
 static const char* execute_hash(
   const int nid,
-  const unsigned char* source,
+  const unsigned char* const source,
   const int source_size,
-  unsigned char* target
+  unsigned char* const target
 ) {
   const EVP_MD* evp_md = EVP_get_digestbynid(nid);
   if (!evp_md) return "nid invalid";
@@ -486,11 +488,11 @@ static const char* execute_hash(
 
 static const char* execute_hmac(
   const int nid,
-  const unsigned char* key,
+  const unsigned char* const key,
   const int key_size,
-  const unsigned char* source,
+  const unsigned char* const source,
   const int source_size,
-  unsigned char* target
+  unsigned char* const target
 ) {
   const EVP_MD* evp_md = EVP_get_digestbynid(nid);
   if (!evp_md) return "nid invalid";
@@ -522,7 +524,7 @@ static int range(
   const int offset,
   const int size,
   const int length,
-  const char* error
+  const char* const error
 ) {
   assert(offset >= 0);
   assert(size >= 0);
@@ -610,7 +612,7 @@ void task_execute(napi_env env, void* data) {
   }
 }
 
-void task_complete(napi_env env, napi_status status, void* data) {
+void task_complete(napi_env env, napi_status status, void* const data) {
   struct task_data* task = data;
   if (status == napi_cancelled) {
     task->error = E_CANCELLED;
@@ -657,12 +659,12 @@ static napi_value task_create(
   int flags,
   int nid,
   int encrypt,
-  unsigned char* key,
-  unsigned char* iv,
-  unsigned char* source,
-  unsigned char* target,
-  unsigned char* aad,
-  unsigned char* tag,
+  unsigned char* const key,
+  unsigned char* const iv,
+  unsigned char* const source,
+  unsigned char* const target,
+  unsigned char* const aad,
+  unsigned char* const tag,
   int key_size,
   int iv_size,
   int source_size,
@@ -1031,8 +1033,8 @@ static napi_value hmac(napi_env env, napi_callback_info info) {
 void export_error(
   napi_env env,
   napi_value exports,
-  const char* code,
-  const char* error
+  const char* const code,
+  const char* const error
 ) {
   napi_value string;
   OK(napi_create_string_utf8(env, error, NAPI_AUTO_LENGTH, &string));

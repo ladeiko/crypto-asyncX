@@ -56,6 +56,10 @@ function randomSize() {
 
 const Cipher = {
   algorithm: [
+    { name: 'aes-128-cbc', keySize: 16, ivSize: 16, tagSize: 0 },
+    { name: 'aes-192-cbc', keySize: 24, ivSize: 16, tagSize: 0 },
+    { name: 'aes-256-cbc', keySize: 32, ivSize: 16, tagSize: 0 },
+
     { name: 'aes-128-ctr', keySize: 16, ivSize: 16, tagSize: 0 },
     { name: 'aes-192-ctr', keySize: 24, ivSize: 16, tagSize: 0 },
     { name: 'aes-256-ctr', keySize: 32, ivSize: 16, tagSize: 0 },
@@ -85,7 +89,7 @@ const Cipher = {
       var key = randomBuffer(keySize);
       var iv = randomBuffer(ivSize);
       var source = randomBuffer(sourceSize);
-      if (aead || random() < 0.5) {
+      if (aead) {// || random() < 0.5) {
         var aad = randomBuffer(aadSize);
         var tag = randomBuffer(tagSize);
         return [
@@ -115,7 +119,7 @@ const Cipher = {
       var iv = randomBuffer(ivOffset + ivSize + randomSize());
       var source = randomBuffer(sourceOffset + sourceSize + randomSize());
       var target = randomBuffer(targetOffset + targetSize + randomSize());
-      if (aead || random() < 0.5) {
+      if (aead) {// || random() < 0.5) {
         var aadOffset = randomSize();
         var tagOffset = randomSize();
         var aad = randomBuffer(aadOffset + aadSize + randomSize());

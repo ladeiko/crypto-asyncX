@@ -1,6 +1,6 @@
 {
   "name": "crypto-asyncx",
-  "version": "5.1.1",
+  "version": "5.1.2",
   "description": "Fast, reliable cipher, hash and hmac methods executed in Node's threadpool for multi-core throughput.",
   "main": "index.js",
   "files": [
